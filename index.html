@@ -989,75 +989,93 @@
         };
         
 
-        // ==================== LOAD & SAVE DATA ====================
-        function loadData() {
-            try {
-                // Load dari localStorage
-                const savedTx = localStorage.getItem('profinance_transactions');
-                if (savedTx) {
-                    transactions = JSON.parse(savedTx);
-                } else {
-                    transactions = [];
-                }
-                
-                const savedCat = localStorage.getItem('profinance_categories');
-                if (savedCat) {
-                    categories = JSON.parse(savedCat);
-                } else {
-                    categories = { 
-                        income: ["Gaji", "Bonus", "Investasi", "Lainnya"], 
-                        expense: ["Makan", "Transportasi", "Belanja", "Hiburan", "Tagihan", "Lainnya"], 
-                        transfer: ["Transfer"] 
-                    };
-                }
-                
-                const savedAssets = localStorage.getItem('profinance_assets');
-                if (savedAssets) {
-                    assets = JSON.parse(savedAssets);
-                } else {
-                    assets = [
-                        {id: 'ast1', name: 'Cash', icon: 'bx-wallet', balance: 0},
-                        {id: 'ast2', name: 'Bank BCA', icon: 'bxs-bank', balance: 0}
-                    ];
-                }
-                
-                const savedBudgets = localStorage.getItem('profinance_budgets');
-                if (savedBudgets) {
-                    budgets = JSON.parse(savedBudgets);
-                } else {
-                    budgets = {};
-                }
-                
-                // Load custom currencies
-                const savedCurrencies = localStorage.getItem('profinance_custom_currencies');
-                if (savedCurrencies) {
-                    customCurrencies = JSON.parse(savedCurrencies);
-                } else {
-                    customCurrencies = []; // Mulai kosong
-                }
-                
-                const savedSettings = localStorage.getItem('profinance_settings');
-                if (savedSettings) {
-                    const settings = JSON.parse(savedSettings);
-                    mainCurrency = settings.currency || 'IDR';
-                    numberFormat = settings.numberFormat || 'id-ID';
-                }
-                
-                // Load last sync info
-                lastSyncTime = localStorage.getItem('profinance_last_sync');
-                const savedLastSyncData = localStorage.getItem('profinance_last_sync_data');
-                if (savedLastSyncData) {
-                    lastSyncData = JSON.parse(savedLastSyncData);
-                    // Pastikan customCurrencies ada di lastSyncData
-                    if (!lastSyncData.customCurrencies) lastSyncData.customCurrencies = [];
-                }
-                
-                updateCurrencyDisplay();
-            } catch (e) {
-                console.error('Error loading data:', e);
-                resetToEmptyData();
-            }
+// ==================== LOAD & SAVE DATA ====================
+function loadData() {
+    try {
+        // Load dari localStorage
+        const savedTx = localStorage.getItem('profinance_transactions');
+        if (savedTx) {
+            transactions = JSON.parse(savedTx);
+        } else {
+            transactions = [];
         }
+        
+        const savedCat = localStorage.getItem('profinance_categories');
+        if (savedCat) {
+            categories = JSON.parse(savedCat);
+        } else {
+            categories = { 
+                income: ["Gaji", "Bonus", "Investasi", "Lainnya"], 
+                expense: ["Makan", "Transportasi", "Belanja", "Hiburan", "Tagihan", "Lainnya"], 
+                transfer: ["Transfer"] 
+            };
+        }
+        
+        const savedAssets = localStorage.getItem('profinance_assets');
+        if (savedAssets) {
+            assets = JSON.parse(savedAssets);
+        } else {
+            assets = [
+                {id: 'ast1', name: 'Cash', icon: 'bx-wallet', balance: 0},
+                {id: 'ast2', name: 'Bank BCA', icon: 'bxs-bank', balance: 0}
+            ];
+        }
+        
+        const savedBudgets = localStorage.getItem('profinance_budgets');
+        if (savedBudgets) {
+            budgets = JSON.parse(savedBudgets);
+        } else {
+            budgets = {};
+        }
+        
+        // Load custom currencies
+        const savedCurrencies = localStorage.getItem('profinance_custom_currencies');
+        if (savedCurrencies) {
+            customCurrencies = JSON.parse(savedCurrencies);
+        } else {
+            customCurrencies = []; // Mulai kosong
+        }
+        
+        const savedSettings = localStorage.getItem('profinance_settings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            mainCurrency = settings.currency || 'IDR';
+            numberFormat = settings.numberFormat || 'id-ID';
+        }
+        
+        // Load last sync info
+        lastSyncTime = localStorage.getItem('profinance_last_sync');
+        const savedLastSyncData = localStorage.getItem('profinance_last_sync_data');
+        if (savedLastSyncData) {
+            lastSyncData = JSON.parse(savedLastSyncData);
+            // Pastikan semua properti ada
+            if (!lastSyncData.categories) lastSyncData.categories = {};
+            if (!lastSyncData.customCurrencies) lastSyncData.customCurrencies = [];
+            if (!lastSyncData.settings) lastSyncData.settings = {};
+            if (!lastSyncData.deletedIds) lastSyncData.deletedIds = [];
+            if (!lastSyncData.deletedAssetIds) lastSyncData.deletedAssetIds = [];
+            if (!lastSyncData.deletedBudgetKeys) lastSyncData.deletedBudgetKeys = [];
+        } else {
+            // Inisialisasi lastSyncData dengan data saat ini
+            lastSyncData = {
+                transactions: [...transactions],
+                assets: [...assets],
+                budgets: { ...budgets },
+                categories: JSON.parse(JSON.stringify(categories)),
+                customCurrencies: [...customCurrencies],
+                settings: { currency: mainCurrency, numberFormat: numberFormat },
+                deletedIds: [],
+                deletedAssetIds: [],
+                deletedBudgetKeys: []
+            };
+        }
+        
+        updateCurrencyDisplay();
+    } catch (e) {
+        console.error('Error loading data:', e);
+        resetToEmptyData();
+    }
+}
 
         function saveData() {
             try {
@@ -1295,121 +1313,119 @@
             });
         }
 
-           // ==================== SYNC DENGAN GAS ====================
-            let syncQueue = Promise.resolve();
+        // ==================== SYNC DENGAN GAS ====================
+        let syncQueue = Promise.resolve();
 
-            async function syncWithGAS(force = false, silent = false) {
-                // Gunakan queue untuk mencegah tumpang tindih
-                syncQueue = syncQueue.then(async () => {
-                    if (syncInProgress) {
-                        console.log('Sync already in progress, skipping');
+        async function syncWithGAS(force = false, silent = false) {
+            // Gunakan queue untuk mencegah tumpang tindih
+            return syncQueue = syncQueue.then(async () => {
+                if (syncInProgress) {
+                    console.log('Sync already in progress, skipping');
+                    return;
+                }
+                
+                syncInProgress = true;
+                if (!silent) updateSyncStatus('Menyimpan...', 'warning');
+                
+                try {
+                    // Kumpulkan semua perubahan
+                    const changes = {
+                        newTransactions: getNewTransactions(),
+                        updatedTransactions: getUpdatedTransactions(),
+                        deletedIds: getDeletedIds(),
+                        newAssets: getNewAssets(),
+                        updatedAssets: getUpdatedAssets(),
+                        deletedAssetIds: getDeletedAssetIds(),
+                        newBudgets: getNewBudgets(),
+                        deletedBudgetKeys: getDeletedBudgetKeys(),
+                        categories: categories,
+                        customCurrencies: customCurrencies,
+                        settings: {
+                            currency: mainCurrency,
+                            numberFormat: numberFormat
+                        }
+                    };
+                    
+                    // Cek apakah ada perubahan
+                    const hasChanges = force || 
+                        changes.newTransactions.length > 0 ||
+                        changes.updatedTransactions.length > 0 ||
+                        changes.deletedIds.length > 0 ||
+                        changes.newAssets.length > 0 ||
+                        changes.updatedAssets.length > 0 ||
+                        changes.deletedAssetIds.length > 0 ||
+                        Object.keys(changes.newBudgets).length > 0 ||
+                        changes.deletedBudgetKeys.length > 0 ||
+                        JSON.stringify(lastSyncData?.categories || {}) !== JSON.stringify(categories) ||
+                        JSON.stringify(lastSyncData?.customCurrencies || []) !== JSON.stringify(customCurrencies) ||
+                        JSON.stringify(lastSyncData?.settings || {}) !== JSON.stringify({ currency: mainCurrency, numberFormat: numberFormat });
+                    
+                    if (!hasChanges) {
+                        if (!silent) {
+                            updateSyncStatus('Tersimpan', 'success');
+                            showToast('Semua data sudah sinkron', 'success');
+                        }
+                        syncInProgress = false;
                         return;
                     }
                     
-                    syncInProgress = true;
-                    if (!silent) updateSyncStatus('Menyimpan...', 'warning');
+                    console.log('Syncing with payload:', changes);
                     
-                    try {
-                        // Kumpulkan semua perubahan
-                        const changes = {
-                            newTransactions: getNewTransactions(),
-                            updatedTransactions: getUpdatedTransactions(),
-                            deletedIds: getDeletedIds(),
-                            newAssets: getNewAssets(),
-                            updatedAssets: getUpdatedAssets(),
-                            deletedAssetIds: getDeletedAssetIds(),
-                            newBudgets: getNewBudgets(),
-                            deletedBudgetKeys: getDeletedBudgetKeys(),
-                            categories: categories,
-                            customCurrencies: customCurrencies,
-                            settings: {
-                                currency: mainCurrency,
-                                numberFormat: numberFormat
-                            }
-                        };
-                        
-                        // Cek apakah ada perubahan
-                        const hasChanges = force || 
-                            changes.newTransactions.length > 0 ||
-                            changes.updatedTransactions.length > 0 ||
-                            changes.deletedIds.length > 0 ||
-                            changes.newAssets.length > 0 ||
-                            changes.updatedAssets.length > 0 ||
-                            changes.deletedAssetIds.length > 0 ||
-                            Object.keys(changes.newBudgets).length > 0 ||
-                            changes.deletedBudgetKeys.length > 0 ||
-                            JSON.stringify(lastSyncData?.categories) !== JSON.stringify(categories) ||
-                            JSON.stringify(lastSyncData?.customCurrencies) !== JSON.stringify(customCurrencies) ||
-                            JSON.stringify(lastSyncData?.settings) !== JSON.stringify({ currency: mainCurrency, numberFormat: numberFormat });
-                        
-                        if (!hasChanges) {
-                            if (!silent) {
-                                updateSyncStatus('Tersimpan', 'success');
-                                showToast('Semua data sudah sinkron', 'success');
-                            }
-                            syncInProgress = false;
-                            return;
-                        }
-                        
-                        console.log('Syncing with payload:', changes);
-                        
-                        const payload = {
-                            action: 'syncAllData',
-                            ...changes,
-                            timestamp: new Date().toISOString()
-                        };
-                        
-                        const result = await fetchFromGAS(payload);
-                        
-                        if (result && result.success) {
-                            if (!silent) {
-                                updateSyncStatus('Tersimpan cloud', 'success');
-                                if (result.syncedCount > 0) {
-                                    showToast(`${result.syncedCount} perubahan tersimpan`, 'success');
-                                }
-                            }
-                            
-                            // Update lastSyncData dengan data TERBARU
-                            lastSyncData = {
-                                transactions: JSON.parse(JSON.stringify(transactions)),
-                                assets: JSON.parse(JSON.stringify(assets)),
-                                budgets: { ...budgets },
-                                categories: JSON.parse(JSON.stringify(categories)),
-                                customCurrencies: JSON.parse(JSON.stringify(customCurrencies)),
-                                settings: { currency: mainCurrency, numberFormat: numberFormat },
-                                deletedIds: [],
-                                deletedAssetIds: [],
-                                deletedBudgetKeys: []
-                            };
-                            
-                            localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
-                            lastSyncTime = new Date().toISOString();
-                            localStorage.setItem('profinance_last_sync', lastSyncTime);
-                            
-                        } else {
-                            // Jika result false tapi tidak throw error
-                            if (!silent) {
-                                updateSyncStatus('Gagal sync', 'danger');
-                                showToast(result?.message || 'Gagal sinkronisasi', 'danger');
-                            }
-                            console.error('Sync failed with result:', result);
-                        }
-                    } catch (error) {
-                        console.error('Sync error:', error);
+                    const payload = {
+                        action: 'syncAllData',
+                        ...changes,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    const result = await fetchFromGAS(payload);
+                    
+                    if (result && result.success) {
                         if (!silent) {
-                            updateSyncStatus('Offline mode', 'danger');
-                            showToast('Gagal sinkronisasi. Cek koneksi.', 'danger');
+                            updateSyncStatus('Tersimpan cloud', 'success');
+                            if (result.syncedCount > 0) {
+                                showToast(`${result.syncedCount} perubahan tersimpan`, 'success');
+                            }
                         }
-                    } finally {
-                        syncInProgress = false;
+                        
+                        // Update lastSyncData dengan data TERBARU
+                        lastSyncData = {
+                            transactions: JSON.parse(JSON.stringify(transactions)),
+                            assets: JSON.parse(JSON.stringify(assets)),
+                            budgets: { ...budgets },
+                            categories: JSON.parse(JSON.stringify(categories)),
+                            customCurrencies: JSON.parse(JSON.stringify(customCurrencies)),
+                            settings: { currency: mainCurrency, numberFormat: numberFormat },
+                            deletedIds: [],
+                            deletedAssetIds: [],
+                            deletedBudgetKeys: []
+                        };
+                        
+                        localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
+                        lastSyncTime = new Date().toISOString();
+                        localStorage.setItem('profinance_last_sync', lastSyncTime);
+                        
+                    } else {
+                        // Jika result false tapi tidak throw error
+                        if (!silent) {
+                            updateSyncStatus('Gagal sync', 'danger');
+                            showToast(result?.message || 'Gagal sinkronisasi', 'danger');
+                        }
+                        console.error('Sync failed with result:', result);
                     }
-                }).catch(error => {
-                    console.error('Sync queue error:', error);
+                } catch (error) {
+                    console.error('Sync error:', error);
+                    if (!silent) {
+                        updateSyncStatus('Offline mode', 'danger');
+                        showToast('Gagal sinkronisasi. Cek koneksi.', 'danger');
+                    }
+                } finally {
                     syncInProgress = false;
-                });
-                
-                return syncQueue;
-            }
+                }
+            }).catch(error => {
+                console.error('Sync queue error:', error);
+                syncInProgress = false;
+            });
+        }
 
         // Fungsi untuk mendapatkan transaksi baru
         function getNewTransactions() {
@@ -2995,81 +3011,81 @@
             }
         }
 
-        // ==================== FUNGSI RESET TOTAL ====================
-        function forceResetAllData() {
-            if (!confirm('⚠️ PERINGATAN!\n\nIni akan MENGHAPUS SEMUA:\n• Transaksi\n• Aset (kecuali default)\n• Anggaran\n• Kategori (reset ke default)\n• Mata uang kustom\n\nData di cloud juga akan dihapus permanen.\nLanjutkan?')) {
-                return;
-            }
-            
-            // Simpan ID yang akan dihapus
-            const deletedAssetIds = assets
-                .filter(a => a.id !== 'ast1' && a.id !== 'ast2')
-                .map(a => a.id);
-            
-            const deletedTransactionIds = transactions
-                .filter(tx => tx.id > 1000)
-                .map(tx => tx.id);
-            
-            const deletedBudgetKeys = Object.keys(budgets);
-            
-            // Reset ke data default
-            transactions = [];
-            assets = [
-                {id: 'ast1', name: 'Cash', icon: 'bx-wallet', balance: 0},
-                {id: 'ast2', name: 'Bank BCA', icon: 'bxs-bank', balance: 0}
-            ];
-            budgets = {};
-            customCurrencies = [];
-            categories = {
-                income: ["Gaji", "Bonus", "Investasi", "Lainnya"],
-                expense: ["Makan", "Transportasi", "Belanja", "Hiburan", "Tagihan", "Lainnya"],
-                transfer: ["Transfer"]
-            };
-            mainCurrency = 'IDR';
-            numberFormat = 'id-ID';
-            
-            // Hapus localStorage
-            localStorage.clear();
-            
-            // Update lastSyncData dengan ID yang akan dihapus
-            lastSyncData = {
-                transactions: [],
-                assets: [...assets],
-                budgets: {},
-                categories: JSON.parse(JSON.stringify(categories)),
-                customCurrencies: [],
-                settings: { currency: mainCurrency, numberFormat: numberFormat },
-                deletedIds: deletedTransactionIds,
-                deletedAssetIds: deletedAssetIds,
-                deletedBudgetKeys: deletedBudgetKeys
-            };
-            
-            localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
-            lastSyncTime = new Date().toISOString();
-            localStorage.setItem('profinance_last_sync', lastSyncTime);
-            
-            // Render ulang
-            updateMonthDisplay();
-            renderCurrentView();
-            renderAssets();
-            renderBudgets();
-            refreshStatistics();
-            updateCurrencyDisplay();
-            
-            showToast('Data lokal telah direset ke default', 'success');
-            
-            // Sync ke cloud - PASTIKAN FORCE = TRUE
-            setTimeout(async () => {
-                try {
-                    // Panggil sync dengan force = true
-                    await syncWithGAS(true, false);
-                    showToast('Database cloud telah direset', 'success');
-                } catch (err) {
-                    console.error('Sync reset gagal:', err);
-                    showToast('Reset lokal berhasil, cloud akan direset saat online', 'warning');
-                }
-            }, 500);
+// ==================== FUNGSI RESET TOTAL ====================
+function forceResetAllData() {
+    if (!confirm('⚠️ PERINGATAN!\n\nIni akan MENGHAPUS SEMUA:\n• Transaksi\n• Aset (kecuali default)\n• Anggaran\n• Kategori (reset ke default)\n• Mata uang kustom\n\nData di cloud juga akan dihapus permanen.\nLanjutkan?')) {
+        return;
+    }
+    
+    // Simpan ID yang akan dihapus SEBELUM reset
+    const deletedAssetIds = assets
+        .filter(a => a.id !== 'ast1' && a.id !== 'ast2')
+        .map(a => a.id);
+    
+    const deletedTransactionIds = transactions
+        .filter(tx => tx.id > 1000)
+        .map(tx => tx.id);
+    
+    const deletedBudgetKeys = Object.keys(budgets);
+    
+    // Reset ke data default
+    transactions = [];
+    assets = [
+        {id: 'ast1', name: 'Cash', icon: 'bx-wallet', balance: 0},
+        {id: 'ast2', name: 'Bank BCA', icon: 'bxs-bank', balance: 0}
+    ];
+    budgets = {};
+    customCurrencies = [];
+    categories = {
+        income: ["Gaji", "Bonus", "Investasi", "Lainnya"],
+        expense: ["Makan", "Transportasi", "Belanja", "Hiburan", "Tagihan", "Lainnya"],
+        transfer: ["Transfer"]
+    };
+    mainCurrency = 'IDR';
+    numberFormat = 'id-ID';
+    
+    // Simpan data default ke localStorage (pakai fungsi saveData)
+    saveData();
+    
+    // Update lastSyncData dengan ID yang akan dihapus
+    lastSyncData = {
+        transactions: JSON.parse(JSON.stringify(transactions)),
+        assets: JSON.parse(JSON.stringify(assets)),
+        budgets: { ...budgets },
+        categories: JSON.parse(JSON.stringify(categories)),
+        customCurrencies: [...customCurrencies],
+        settings: { currency: mainCurrency, numberFormat: numberFormat },
+        deletedIds: deletedTransactionIds,
+        deletedAssetIds: deletedAssetIds,
+        deletedBudgetKeys: deletedBudgetKeys
+    };
+    
+    localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
+    lastSyncTime = new Date().toISOString();
+    localStorage.setItem('profinance_last_sync', lastSyncTime);
+    
+    // Render ulang
+    updateMonthDisplay();
+    renderCurrentView();
+    renderAssets();
+    renderBudgets();
+    refreshStatistics();
+    updateCurrencyDisplay();
+    
+    showToast('Data lokal telah direset ke default', 'success');
+    
+    // Sync ke cloud - PASTIKAN FORCE = TRUE
+    setTimeout(async () => {
+        try {
+            // Panggil sync dengan force = true
+            await syncWithGAS(true, false);
+            showToast('Database cloud telah direset', 'success');
+        } catch (err) {
+            console.error('Sync reset gagal:', err);
+            showToast('Reset lokal berhasil, cloud akan direset saat online', 'warning');
         }
+    }, 500);
+}
 
         // ───────────────────────────────────────────────
         // HAPUS SEMUA TRANSAKSI SAJA (local + cloud)
