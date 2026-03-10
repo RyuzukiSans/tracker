@@ -98,35 +98,74 @@
         .tab { flex: 1; text-align: center; padding: 8px 0; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 8px; color: var(--text-muted); transition: 0.3s; }
         .tab.active { background: #fff; color: var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .summary-dashboard { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
+            display: flex;
+            flex-direction: column;
             gap: 0.5rem; 
             margin-bottom: 1.5rem;
-            padding: 0.5rem;
-        }
-        .summary-box { 
-            padding: 0.75rem 0.25rem; 
-            text-align: center; 
-            border-radius: 16px;
+            padding: 0.75rem;
             background: white;
+            border-radius: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .summary-box p { 
-            font-size: 0.65rem; 
-            color: var(--text-muted); 
-            margin-bottom: 4px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.3px;
-            white-space: nowrap;
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
         }
+
+        .summary-box { 
+            padding: 1rem 0.5rem; 
+            text-align: center; 
+            border-radius: 16px;
+            background: var(--bg-app);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+
+        .summary-box.total-box {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(79,70,229,0.05) 0%, rgba(79,70,229,0.1) 100%);
+            border: 1px solid rgba(79,70,229,0.2);
+            padding: 1.2rem 0.5rem;
+        }
+
+        .summary-box p { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+            margin-bottom: 6px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* Ikon dalam summary */
+        .summary-box p i {
+            vertical-align: middle;
+            opacity: 0.7;
+        }
+
+        /* Animasi ringan saat hover */
+        .summary-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
         .summary-box h3 { 
-            font-size: 0.9rem; 
+            font-size: 1.2rem; 
             font-weight: 700;
-            line-height: 1.2;
+            line-height: 1.3;
             word-break: break-word;
         }
+
+        .summary-box.total-box h3 {
+            font-size: 1.4rem;
+        }
+
         @media (min-width: 768px) { 
             .summary-box h3 { font-size: 1.4rem; } 
+            .summary-box.total-box h3 { font-size: 1.8rem; }
             .summary-box p { font-size: 0.8rem; } 
         }
         .tx-day-group { margin-bottom: 1.5rem; }
@@ -308,20 +347,220 @@
         }
         .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
 
-        /* Style untuk budget card di mobile */
-        @media (max-width: 768px) {
-            .budget-card {
-                padding: 0.75rem;
-            }
-            .budget-card .progress-container {
-                height: 4px;
-            }
-            .budget-card .tx-title {
-                font-size: 0.85rem;
-            }
-            .budget-card .tx-amount {
-                font-size: 0.8rem;
-            }
+        /* ==================== MODERN BUDGET CARDS ==================== */
+        .budget-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .budget-card-modern {
+            background: white;
+            border-radius: 20px;
+            padding: 1rem 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .budget-card-modern:active {
+            transform: scale(0.99);
+        }
+
+        .budget-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .budget-category {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .budget-category i {
+            font-size: 1.2rem;
+            color: var(--primary);
+            background: rgba(79,70,229,0.1);
+            padding: 0.4rem;
+            border-radius: 12px;
+        }
+
+        .budget-category span {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .budget-status-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .status-aman {
+            background: rgba(16,185,129,0.1);
+            color: var(--success);
+        }
+
+        .status-hampir {
+            background: rgba(245,158,11,0.1);
+            color: var(--warning);
+        }
+
+        .status-over {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+        }
+
+        .budget-amount-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+        }
+
+        .budget-spent {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .budget-total {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .budget-total strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .budget-progress {
+            height: 6px;
+            background: #EFF1F5;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0.75rem 0 0.5rem 0;
+        }
+
+        .budget-progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-normal {
+            background: linear-gradient(90deg, var(--success), #34D399);
+        }
+
+        .progress-warning {
+            background: linear-gradient(90deg, var(--warning), #FBBF24);
+        }
+
+        .progress-danger {
+            background: linear-gradient(90deg, var(--danger), #F87171);
+        }
+
+        .budget-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .budget-remaining {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .remaining-positive {
+            color: var(--success);
+        }
+
+        .remaining-negative {
+            color: var(--danger);
+        }
+
+        .budget-delete-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.02);
+            border: none;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .budget-delete-btn:hover {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+        }
+
+        .budget-delete-btn i {
+            font-size: 1.1rem;
+        }
+
+        /* Sisa anggaran summary card */
+        .budget-summary-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #6366F1 100%);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(79,70,229,0.3);
+        }
+
+        .budget-summary-title {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .budget-summary-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .budget-summary-sub {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+
+        /* Empty state */
+        .budget-empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: white;
+            border-radius: 24px;
+            border: 1px dashed var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .budget-empty-state i {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .budget-empty-state p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -372,9 +611,20 @@
                 </div>
 
                 <div class="summary-dashboard glass">
-                    <div class="summary-box"><p>Pemasukan</p><h3 id="sum-income" class="text-success">Rp 0</h3></div>
-                    <div class="summary-box"><p>Pengeluaran</p><h3 id="sum-expense" class="text-danger">Rp 0</h3></div>
-                    <div class="summary-box"><p>Total</p><h3 id="sum-total" class="text-primary">Rp 0</h3></div>
+                    <div class="summary-row">
+                        <div class="summary-box">
+                            <p><i class='bx bx-trending-up' style="font-size: 1rem; margin-right: 4px;"></i>Pemasukan</p>
+                            <h3 id="sum-income" class="text-success">Rp 0</h3>
+                        </div>
+                        <div class="summary-box">
+                            <p><i class='bx bx-trending-down' style="font-size: 1rem; margin-right: 4px;"></i>Pengeluaran</p>
+                            <h3 id="sum-expense" class="text-danger">Rp 0</h3>
+                        </div>
+                    </div>
+                    <div class="summary-box total-box">
+                        <p><i class='bx bx-wallet' style="font-size: 1rem; margin-right: 4px;"></i>TOTAL SALDO</p>
+                        <h3 id="sum-total" class="text-primary">Rp 0</h3>
+                    </div>
                 </div>
 
                 <!-- HARIAN -->
@@ -456,11 +706,9 @@
                     <div class="setting-item" onclick="manageCategories('income')"><div class="setting-left"><div class="setting-icon icon-inc"><i class='bx bx-category-alt'></i></div> Kelola Kategori Pemasukan</div><i class='bx bx-chevron-right'></i></div>
                     <div class="setting-item" onclick="openCurrencySettings()"><div class="setting-left"><div class="setting-icon"><i class='bx bx-money'></i></div> Pengaturan Mata Uang</div><span style="font-size:0.8rem;font-weight:600;" id="currency-display">IDR</span></div>
                     <div class="setting-item" onclick="exportData()"><div class="setting-left"><div class="setting-icon icon-inc"><i class='bx bx-spreadsheet'></i></div> Ekstrak ke Excel</div><i class='bx bx-download'></i></div>
-                    <div class="setting-item" onclick="syncWithGAS()"><div class="setting-left"><div class="setting-icon"><i class='bx bx-sync'></i></div> Sinkronisasi Manual</div><i class='bx bx-refresh'></i></div>
+                    <div class="setting-item" onclick="syncWithGAS(true)"><div class="setting-left"><div class="setting-icon"><i class='bx bx-sync'></i></div>Sinkronisasi Manual</div><i class='bx bx-refresh'></i></div>
                     <div class="setting-item" onclick="forceResetAllData()" style="color: var(--danger);"><div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-trash'></i></div>Reset Semua Data</div><i class='bx bx-error'></i></div>
                     <div class="setting-item" onclick="clearAllTransactions()" style="color: var(--danger);"><div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-notepad'></i></div>Hapus Semua Transaksi</div><i class='bx bx-trash'></i></div>
-                    <div class="setting-item" onclick="clearLocalStorage()">
-                    <div class="setting-left"><div class="setting-icon"><i class='bx bx-data'></i></div>Bersihkan LocalStorage</div><i class='bx bx-refresh'></i></div>
                     <div class="setting-item" onclick="logout()"><div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-log-out'></i></div> Logout</div></div>
                 </div>
                 <div class="flex justify-center gap-4" style="margin-top:2rem;">
@@ -649,30 +897,58 @@
                 <h3>Pengaturan Mata Uang</h3>
                 <i class='bx bx-x close-modal' onclick="closeModal('currency-modal')"></i>
             </div>
+            
+            <!-- Tab: Pilih Mata Uang Utama -->
             <div class="form-group">
                 <label class="form-label">Mata Uang Utama</label>
                 <select id="main-currency" class="form-control" onchange="changeMainCurrency(this.value)">
-                    <option value="IDR">Indonesian Rupiah (IDR) - Rp</option>
-                    <option value="USD">US Dollar (USD) - $</option>
-                    <option value="EUR">Euro (EUR) - €</option>
-                    <option value="SGD">Singapore Dollar (SGD) - S$</option>
-                    <option value="MYR">Malaysian Ringgit (MYR) - RM</option>
+                    <option value="IDR">🇮🇩 Indonesian Rupiah (IDR) - Rp</option>
+                    <option value="USD">🇺🇸 US Dollar (USD) - $</option>
+                    <option value="EUR">🇪🇺 Euro (EUR) - €</option>
+                    <option value="SGD">🇸🇬 Singapore Dollar (SGD) - S$</option>
+                    <option value="MYR">🇲🇾 Malaysian Ringgit (MYR) - RM</option>
+                    <!-- Mata uang kustom akan ditambahkan di sini via JavaScript -->
                 </select>
             </div>
+            
             <div class="form-group">
                 <label class="form-label">Format Angka</label>
                 <select id="number-format" class="form-control" onchange="changeNumberFormat(this.value)">
-                    <option value="id-ID">Indonesia (Rp 1.000.000)</option>
-                    <option value="en-US">US ($1,000,000)</option>
-                    <option value="de-DE">German (1.000.000 €)</option>
+                    <option value="id-ID">🇮🇩 Indonesia (Rp 1.000.000)</option>
+                    <option value="en-US">🇺🇸 US ($1,000,000)</option>
+                    <option value="de-DE">🇩🇪 German (1.000.000 €)</option>
                 </select>
             </div>
+            
+            <div style="height: 1px; background: var(--glass-border); margin: 1.5rem 0;"></div>
+            
+            <!-- Bagian: Kelola Mata Uang Kustom -->
+            <h4 style="margin-bottom: 1rem; font-size: 1rem;">Mata Uang Kustom</h4>
+            
+            <div id="custom-currencies-list" style="margin-bottom: 1rem; max-height: 200px; overflow-y: auto;">
+                <!-- Daftar mata uang kustom akan ditampilkan di sini -->
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Tambah Mata Uang Baru</label>
+                <div class="flex gap-2" style="align-items: center;">
+                    <input type="text" id="new-currency-code" class="form-control" placeholder="Kode (contoh: GBP)" style="width: 80px;" maxlength="3">
+                    <input type="text" id="new-currency-symbol" class="form-control" placeholder="Simbol (contoh: £)" style="width: 70px;" maxlength="3">
+                    <input type="text" id="new-currency-name" class="form-control" placeholder="Nama (contoh: British Pound)" style="flex: 1;">
+                    <button class="btn-submit" style="width: auto; padding: 0.9rem 1.5rem; margin-top: 0;" onclick="addCustomCurrency()">Tambah</button>
+                </div>
+                <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    Kode mata uang harus 3 huruf (contoh: GBP, JPY, AUD)
+                </p>
+            </div>
+            
+            <button class="btn-submit" onclick="closeModal('currency-modal')">Selesai</button>
         </div>
     </div>
 
     <script>
         // ==================== KONFIGURASI GAS ====================
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwl20wSMx-VNBFKQr1IeUBVb9rRPgP0FN53N3BOdFo9ySthL5CNK-8gGXrQDaRIACaA7g/exec"; // URL kamu
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzuLQuOufpyFhs-og6plQJzc-oeFwr0glqyxkCz4dhzofvMw2VNgePoCP4UNixUEMrgNg/exec"; // URL kamu
 
         // ==================== GLOBAL STATE ====================
         let transactions = [];
@@ -683,6 +959,7 @@
         };
         let assets = [];
         let budgets = {};
+        let customCurrencies = []; // Array untuk menyimpan mata uang kustom
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
         let currentView = 'harian';
@@ -691,6 +968,7 @@
         let currentSearch = '';
         let editingTxId = null;
         let editingAssetId = null;
+        let editingCurrencyCode = null; // Untuk edit mata uang
         let currentSelectionType = '';
         let currentCategoryType = 'income';
         let mainCurrency = 'IDR';
@@ -698,7 +976,17 @@
         let pieChart, barChart;
         let syncInProgress = false;
         let lastSyncTime = null;
-        let lastSyncData = { transactions: [], assets: [], budgets: {}, deletedIds: [], deletedBudgetKeys: [] };
+        let lastSyncData = { 
+            transactions: [], 
+            assets: [], 
+            budgets: {}, 
+            categories: {},
+            customCurrencies: [], // Tambahkan ini
+            settings: {},
+            deletedIds: [], 
+            deletedAssetIds: [],
+            deletedBudgetKeys: [] 
+        };
         
 
         // ==================== LOAD & SAVE DATA ====================
@@ -740,6 +1028,14 @@
                     budgets = {};
                 }
                 
+                // Load custom currencies
+                const savedCurrencies = localStorage.getItem('profinance_custom_currencies');
+                if (savedCurrencies) {
+                    customCurrencies = JSON.parse(savedCurrencies);
+                } else {
+                    customCurrencies = []; // Mulai kosong
+                }
+                
                 const savedSettings = localStorage.getItem('profinance_settings');
                 if (savedSettings) {
                     const settings = JSON.parse(savedSettings);
@@ -752,6 +1048,8 @@
                 const savedLastSyncData = localStorage.getItem('profinance_last_sync_data');
                 if (savedLastSyncData) {
                     lastSyncData = JSON.parse(savedLastSyncData);
+                    // Pastikan customCurrencies ada di lastSyncData
+                    if (!lastSyncData.customCurrencies) lastSyncData.customCurrencies = [];
                 }
                 
                 updateCurrencyDisplay();
@@ -761,30 +1059,13 @@
             }
         }
 
-        function resetToEmptyData() {
-            if (confirm('Reset semua data? Data yang tersimpan akan hilang.')) {
-                transactions = [];
-                categories = { income: ["Gaji", "Bonus", "Lainnya"], expense: ["Makan", "Transportasi", "Lainnya"], transfer: ["Transfer"] };
-                assets = [{id: 'ast1', name: 'Cash', icon: 'bx-wallet', balance: 0}];
-                budgets = {};
-                lastSyncData = { transactions: [], assets: [], budgets: {}, deletedIds: [], deletedBudgetKeys: [] }; // UPDATE
-                saveData();
-                
-                renderCurrentView();
-                renderAssets();
-                renderBudgets();
-                refreshStatistics();
-                
-                showToast('Semua data telah direset', 'success');
-            }
-        }
-
         function saveData() {
             try {
                 localStorage.setItem('profinance_transactions', JSON.stringify(transactions));
                 localStorage.setItem('profinance_categories', JSON.stringify(categories));
                 localStorage.setItem('profinance_assets', JSON.stringify(assets));
                 localStorage.setItem('profinance_budgets', JSON.stringify(budgets));
+                localStorage.setItem('profinance_custom_currencies', JSON.stringify(customCurrencies));
                 
                 const settings = { currency: mainCurrency, numberFormat: numberFormat };
                 localStorage.setItem('profinance_settings', JSON.stringify(settings));
@@ -796,11 +1077,50 @@
             }
         }
 
+        function resetToEmptyData() {
+            if (confirm('Reset semua data? Data yang tersimpan akan hilang.')) {
+                transactions = [];
+                categories = { income: ["Gaji", "Bonus", "Lainnya"], expense: ["Makan", "Transportasi", "Lainnya"], transfer: ["Transfer"] };
+                assets = [{id: 'ast1', name: 'Cash', icon: 'bx-wallet', balance: 0}];
+                budgets = {};
+                customCurrencies = []; // Reset custom currencies
+                lastSyncData = { 
+                    transactions: [], 
+                    assets: [], 
+                    budgets: {}, 
+                    categories: {},
+                    customCurrencies: [],
+                    settings: {},
+                    deletedIds: [], 
+                    deletedBudgetKeys: [] 
+                };
+                saveData();
+                
+                renderCurrentView();
+                renderAssets();
+                renderBudgets();
+                refreshStatistics();
+                
+                showToast('Semua data telah direset', 'success');
+            }
+        }
+
+
         function updateSyncStatus(text, type = 'success') {
             const statusEl = document.getElementById('sync-status');
             if (statusEl) {
                 statusEl.innerHTML = `<i class='bx bx-${type === 'success' ? 'check' : 'x'}'></i> ${text}`;
                 statusEl.style.color = type === 'success' ? 'var(--success)' : 'var(--danger)';
+            }
+        }
+
+        // ==================== FUNGSI CEK KONEKSI ====================
+        async function checkConnection() {
+            try {
+                const result = await fetchFromGAS({ action: 'testConnection' }, 1);
+                return result && result.success;
+            } catch (error) {
+                return false;
             }
         }
 
@@ -815,10 +1135,81 @@
                 const data = await fetchFromGAS({ action: 'getAllData' });
                 
                 if (data && data.success) {
+                    // Update semua state
                     if (data.transactions) transactions = data.transactions;
                     if (data.categories) categories = data.categories;
                     if (data.assets) assets = data.assets;
                     if (data.budgets) budgets = data.budgets;
+                    if (data.customCurrencies) customCurrencies = data.customCurrencies;
+                    if (data.settings) {
+                        mainCurrency = data.settings.currency || 'IDR';
+                        numberFormat = data.settings.numberFormat || 'id-ID';
+                    }
+                    
+                    // Simpan ke localStorage
+                    saveData();
+                    
+                    // Update lastSyncData
+                    lastSyncData = {
+                        transactions: JSON.parse(JSON.stringify(transactions)),
+                        assets: JSON.parse(JSON.stringify(assets)),
+                        budgets: { ...budgets },
+                        categories: JSON.parse(JSON.stringify(categories)),
+                        customCurrencies: JSON.parse(JSON.stringify(customCurrencies)),
+                        settings: { currency: mainCurrency, numberFormat: numberFormat },
+                        deletedIds: [],
+                        deletedAssetIds: [],
+                        deletedBudgetKeys: []
+                    };
+                    
+                    lastSyncTime = new Date().toISOString();
+                    localStorage.setItem('profinance_last_sync', lastSyncTime);
+                    localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
+                    
+                    // Render ulang
+                    updateMonthDisplay();
+                    renderCurrentView();
+                    refreshStatistics();
+                    renderAssets();
+                    renderBudgets();
+                    
+                    updateSyncStatus('Tersinkron', 'success');
+                    showToast('Data berhasil disinkronkan dari server', 'success');
+                    
+                    return true;
+                } else {
+                    // Fallback - tetap gunakan data lokal
+                    console.warn('Gagal mengambil data dari server, menggunakan data lokal');
+                    updateSyncStatus('Offline mode', 'warning');
+                    showToast('Menggunakan data lokal (offline mode)', 'warning');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Load from GAS error:', error);
+                updateSyncStatus('Offline mode', 'warning');
+                showToast('Gagal mengambil data dari server, menggunakan data lokal', 'warning');
+                return false;
+            } finally {
+                syncInProgress = false;
+            }
+        }
+
+        // ==================== FUNGSI LOAD DATA DARI SERVER ====================
+        async function loadFromServer() {
+            if (syncInProgress) return;
+            
+            syncInProgress = true;
+            updateSyncStatus('Mengambil data...', 'warning');
+            
+            try {
+                const data = await fetchFromGAS({ action: 'getAllData' });
+                
+                if (data && data.success) {
+                    if (data.transactions) transactions = data.transactions;
+                    if (data.categories) categories = data.categories;
+                    if (data.assets) assets = data.assets;
+                    if (data.budgets) budgets = data.budgets;
+                    if (data.customCurrencies) customCurrencies = data.customCurrencies;
                     if (data.settings) {
                         mainCurrency = data.settings.currency || 'IDR';
                         numberFormat = data.settings.numberFormat || 'id-ID';
@@ -832,8 +1223,11 @@
                         transactions: [...transactions],
                         assets: [...assets],
                         budgets: {...budgets},
-                        categories: JSON.parse(JSON.stringify(categories)), // PENTING: simpan kategori
+                        categories: JSON.parse(JSON.stringify(categories)),
+                        customCurrencies: JSON.parse(JSON.stringify(customCurrencies)),
+                        settings: { currency: mainCurrency, numberFormat: numberFormat },
                         deletedIds: [],
+                        deletedAssetIds: [],
                         deletedBudgetKeys: []
                     };
                     localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
@@ -845,14 +1239,14 @@
                     renderBudgets();
                     
                     updateSyncStatus('Tersinkron', 'success');
-                    showToast('Data berhasil disinkronkan dari server', 'success');
+                    showToast('Data berhasil dimuat dari server', 'success');
                     
                     return true;
                 } else {
                     throw new Error(data?.message || 'Gagal mengambil data');
                 }
             } catch (error) {
-                console.error('Load from GAS error:', error);
+                console.error('Load from server error:', error);
                 updateSyncStatus('Gagal sync', 'danger');
                 showToast('Gagal mengambil data dari server', 'danger');
                 return false;
@@ -901,85 +1295,126 @@
             });
         }
 
-        // ==================== SYNC DENGAN GAS ====================
-        async function syncWithGAS() {
-            if (syncInProgress) return;
-            
-            syncInProgress = true;
-            updateSyncStatus('Menyimpan...', 'warning');
-            
-            try {
-                // Kumpulkan semua perubahan
-                const changes = {
-                    newTransactions: getNewTransactions(),
-                    updatedTransactions: getUpdatedTransactions(),
-                    deletedIds: getDeletedIds(),
-                    newAssets: getNewAssets(),
-                    updatedAssets: getUpdatedAssets(),
-                    deletedAssetIds: getDeletedAssetIds(),
-                    newBudgets: getNewBudgets(),
-                    deletedBudgetKeys: getDeletedBudgetKeys(),
-                    categories: categories // Kirim kategori setiap kali (full sync)
-                };
-                
-                // Cek apakah ada perubahan (kecuali kategori yang selalu dikirim)
-                const hasChanges = 
-                    changes.newTransactions.length > 0 ||
-                    changes.updatedTransactions.length > 0 ||
-                    changes.deletedIds.length > 0 ||
-                    changes.newAssets.length > 0 ||
-                    changes.updatedAssets.length > 0 ||
-                    changes.deletedAssetIds.length > 0 ||
-                    Object.keys(changes.newBudgets).length > 0 ||
-                    changes.deletedBudgetKeys.length > 0 ||
-                    JSON.stringify(lastSyncData.categories) !== JSON.stringify(categories); // Cek perubahan kategori
-                
-                if (!hasChanges) {
-                    updateSyncStatus('Tersimpan', 'success');
+           // ==================== SYNC DENGAN GAS ====================
+            let syncQueue = Promise.resolve();
+
+            async function syncWithGAS(force = false, silent = false) {
+                // Gunakan queue untuk mencegah tumpang tindih
+                syncQueue = syncQueue.then(async () => {
+                    if (syncInProgress) {
+                        console.log('Sync already in progress, skipping');
+                        return;
+                    }
+                    
+                    syncInProgress = true;
+                    if (!silent) updateSyncStatus('Menyimpan...', 'warning');
+                    
+                    try {
+                        // Kumpulkan semua perubahan
+                        const changes = {
+                            newTransactions: getNewTransactions(),
+                            updatedTransactions: getUpdatedTransactions(),
+                            deletedIds: getDeletedIds(),
+                            newAssets: getNewAssets(),
+                            updatedAssets: getUpdatedAssets(),
+                            deletedAssetIds: getDeletedAssetIds(),
+                            newBudgets: getNewBudgets(),
+                            deletedBudgetKeys: getDeletedBudgetKeys(),
+                            categories: categories,
+                            customCurrencies: customCurrencies,
+                            settings: {
+                                currency: mainCurrency,
+                                numberFormat: numberFormat
+                            }
+                        };
+                        
+                        // Cek apakah ada perubahan
+                        const hasChanges = force || 
+                            changes.newTransactions.length > 0 ||
+                            changes.updatedTransactions.length > 0 ||
+                            changes.deletedIds.length > 0 ||
+                            changes.newAssets.length > 0 ||
+                            changes.updatedAssets.length > 0 ||
+                            changes.deletedAssetIds.length > 0 ||
+                            Object.keys(changes.newBudgets).length > 0 ||
+                            changes.deletedBudgetKeys.length > 0 ||
+                            JSON.stringify(lastSyncData?.categories) !== JSON.stringify(categories) ||
+                            JSON.stringify(lastSyncData?.customCurrencies) !== JSON.stringify(customCurrencies) ||
+                            JSON.stringify(lastSyncData?.settings) !== JSON.stringify({ currency: mainCurrency, numberFormat: numberFormat });
+                        
+                        if (!hasChanges) {
+                            if (!silent) {
+                                updateSyncStatus('Tersimpan', 'success');
+                                showToast('Semua data sudah sinkron', 'success');
+                            }
+                            syncInProgress = false;
+                            return;
+                        }
+                        
+                        console.log('Syncing with payload:', changes);
+                        
+                        const payload = {
+                            action: 'syncAllData',
+                            ...changes,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        const result = await fetchFromGAS(payload);
+                        
+                        if (result && result.success) {
+                            if (!silent) {
+                                updateSyncStatus('Tersimpan cloud', 'success');
+                                if (result.syncedCount > 0) {
+                                    showToast(`${result.syncedCount} perubahan tersimpan`, 'success');
+                                }
+                            }
+                            
+                            // Update lastSyncData dengan data TERBARU
+                            lastSyncData = {
+                                transactions: JSON.parse(JSON.stringify(transactions)),
+                                assets: JSON.parse(JSON.stringify(assets)),
+                                budgets: { ...budgets },
+                                categories: JSON.parse(JSON.stringify(categories)),
+                                customCurrencies: JSON.parse(JSON.stringify(customCurrencies)),
+                                settings: { currency: mainCurrency, numberFormat: numberFormat },
+                                deletedIds: [],
+                                deletedAssetIds: [],
+                                deletedBudgetKeys: []
+                            };
+                            
+                            localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
+                            lastSyncTime = new Date().toISOString();
+                            localStorage.setItem('profinance_last_sync', lastSyncTime);
+                            
+                        } else {
+                            // Jika result false tapi tidak throw error
+                            if (!silent) {
+                                updateSyncStatus('Gagal sync', 'danger');
+                                showToast(result?.message || 'Gagal sinkronisasi', 'danger');
+                            }
+                            console.error('Sync failed with result:', result);
+                        }
+                    } catch (error) {
+                        console.error('Sync error:', error);
+                        if (!silent) {
+                            updateSyncStatus('Offline mode', 'danger');
+                            showToast('Gagal sinkronisasi. Cek koneksi.', 'danger');
+                        }
+                    } finally {
+                        syncInProgress = false;
+                    }
+                }).catch(error => {
+                    console.error('Sync queue error:', error);
                     syncInProgress = false;
-                    return;
-                }
+                });
                 
-                const payload = {
-                    action: 'syncAllData',
-                    ...changes,
-                    timestamp: new Date().toISOString()
-                };
-                
-                const result = await fetchFromGAS(payload);
-                
-                if (result && result.success) {
-                    updateSyncStatus('Tersimpan cloud', 'success');
-                    showToast(`${result.syncedCount || 0} perubahan tersimpan`, 'success');
-                    
-                    // Update lastSyncData dengan data TERBARU
-                    lastSyncData = {
-                        transactions: JSON.parse(JSON.stringify(transactions)),
-                        assets: JSON.parse(JSON.stringify(assets)),
-                        budgets: { ...budgets },
-                        categories: JSON.parse(JSON.stringify(categories)),
-                        deletedIds: [],
-                        deletedBudgetKeys: []
-                    };
-                    
-                    localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
-                    lastSyncTime = new Date().toISOString();
-                    localStorage.setItem('profinance_last_sync', lastSyncTime);
-                } else {
-                    throw new Error(result?.message || 'Gagal sync');
-                }
-            } catch (error) {
-                console.error('Sync error:', error);
-                updateSyncStatus('Offline mode', 'danger');
-                showToast('Gagal sinkronisasi. Cek koneksi.', 'danger');
-            } finally {
-                syncInProgress = false;
+                return syncQueue;
             }
-        }
 
         // Fungsi untuk mendapatkan transaksi baru
         function getNewTransactions() {
             if (!lastSyncData || !lastSyncData.transactions) {
+                // Jika belum pernah sync, kirim SEMUA transaksi (kecuali dummy)
                 return transactions.filter(tx => tx.id > 1000);
             }
             
@@ -1013,13 +1448,13 @@
         // Fungsi untuk mendapatkan aset baru
         function getNewAssets() {
             if (!lastSyncData || !lastSyncData.assets) {
-                // Jika belum pernah sync, kirim semua aset (kecuali aset default ast1, ast2)
+                // Jika belum pernah sync, kirim SEMUA aset (kecuali aset default ast1, ast2)
                 return assets.filter(a => a.id !== 'ast1' && a.id !== 'ast2');
             }
             
             const lastAssetMap = new Map(lastSyncData.assets.map(a => [a.id, a]));
             return assets.filter(a => 
-                !lastAssetMap.has(a.id) && a.id !== 'ast1' && a.id !== 'ast2'  // Aset baru (bukan default)
+                !lastAssetMap.has(a.id) && a.id !== 'ast1' && a.id !== 'ast2'
             );
         }
 
@@ -1035,7 +1470,7 @@
                     lastAsset.balance !== a.balance ||
                     lastAsset.name !== a.name ||
                     lastAsset.icon !== a.icon
-                ) && a.id !== 'ast1' && a.id !== 'ast2'; // Jangan sync aset default
+                ) && a.id !== 'ast1' && a.id !== 'ast2';
             });
         }
 
@@ -1047,15 +1482,6 @@
             return lastSyncData.assets
                 .filter(a => !currentIds.has(a.id) && a.id !== 'ast1' && a.id !== 'ast2')
                 .map(a => a.id);
-        }
-
-
-        function clearLocalStorage() {
-            if (confirm('Hapus semua data di localStorage? Data di server TIDAK akan terhapus.')) {
-                localStorage.clear();
-                showToast('LocalStorage telah dibersihkan. Refresh halaman.', 'success');
-                setTimeout(() => location.reload(), 1500);
-            }
         }
 
         // Fungsi untuk mendapatkan budget baru atau berubah
@@ -1125,7 +1551,6 @@
             renderBudgets();
         }
 
-        // ==================== RENDER FUNCTIONS ====================
         function formatCurrency(amount, currency = mainCurrency) {
             const symbol = currency === 'IDR' ? 'Rp ' : 
                           currency === 'USD' ? '$ ' : 
@@ -1488,6 +1913,92 @@
             }
         }
 
+        // ==================== FUNGSI JSONP UNTUK FETCH DENGAN RETRY DAN CLEANUP ====================
+        async function fetchFromGAS(payload, retries = 2) {
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    const result = await new Promise((resolve, reject) => {
+                        try {
+                            const callbackName = 'jsonp_callback_' + Date.now() + '_' + attempt;
+                            const script = document.createElement('script');
+                            
+                            const url = new URL(GAS_WEB_APP_URL);
+                            url.searchParams.set('callback', callbackName);
+                            url.searchParams.set('payload', JSON.stringify(payload));
+                            
+                            console.log(`Fetch attempt ${attempt} - URL:`, url.toString());
+                            
+                            // Buat fungsi callback global
+                            window[callbackName] = function(data) {
+                                console.log(`Callback ${callbackName} received:`, data);
+                                // Cleanup
+                                if (script.parentNode) {
+                                    document.body.removeChild(script);
+                                }
+                                delete window[callbackName];
+                                resolve(data);
+                            };
+                            
+                            // Handle error
+                            script.onerror = function(error) {
+                                console.error(`Script error for ${callbackName}:`, error);
+                                // Cleanup
+                                if (script.parentNode) {
+                                    document.body.removeChild(script);
+                                }
+                                delete window[callbackName];
+                                reject(new Error(`JSONP request failed (attempt ${attempt})`));
+                            };
+                            
+                            // Set timeout - lebih panjang (15 detik)
+                            const timeoutId = setTimeout(() => {
+                                console.warn(`Timeout for ${callbackName} after 15s`);
+                                
+                                // Cleanup
+                                if (script.parentNode) {
+                                    document.body.removeChild(script);
+                                }
+                                
+                                // Hapus callback
+                                if (window[callbackName]) {
+                                    delete window[callbackName];
+                                }
+                                
+                                reject(new Error(`JSONP timeout (attempt ${attempt})`));
+                            }, 15000); // Kembali ke 15 detik
+                            
+                            // Attach cleanup ke callback
+                            const originalCallback = window[callbackName];
+                            window[callbackName] = function(data) {
+                                clearTimeout(timeoutId);
+                                originalCallback(data);
+                            };
+                            
+                            script.src = url.toString();
+                            document.body.appendChild(script);
+                            
+                        } catch (e) {
+                            reject(e);
+                        }
+                    });
+                    
+                    return result;
+                    
+                } catch (error) {
+                    console.log(`Fetch attempt ${attempt} failed:`, error.message);
+                    
+                    if (attempt === retries) {
+                        // Gagal semua percobaan, kembalikan response dummy
+                        console.error('All fetch attempts failed, returning fallback');
+                        return { success: false, message: 'Gagal terhubung ke server' };
+                    }
+                    
+                    // Tunggu sebentar sebelum mencoba lagi (exponential backoff)
+                    await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+                }
+            }
+        }
+
         // ==================== SELECTION MODAL ====================
         function openSelectionModal(type) {
             currentSelectionType = type;
@@ -1756,90 +2267,167 @@
             showToast(`Aset "${assetName}" berhasil dihapus`, 'success');
         }
 
-        // ==================== BUDGET MANAGEMENT ====================
+        // ==================== BUDGET MANAGEMENT MODERN ====================
         function renderBudgets() {
             const container = document.getElementById('budget-list');
             if (!container) return;
             
             container.innerHTML = '';
             
-            if (Object.keys(budgets).length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class='bx bx-target-lock'></i>
-                        <p>Belum ada anggaran</p>
-                        <p style="font-size:0.7rem;margin-top:0.5rem;">Atur anggaran untuk memantau pengeluaran</p>
+            // Hitung total sisa anggaran
+            let totalSisa = 0;
+            let totalBudget = 0;
+            let totalSpent = 0;
+            
+            Object.keys(budgets).forEach(cat => {
+                totalBudget += budgets[cat];
+                const spent = transactions
+                    .filter(tx => tx.category === cat && tx.type === 'expense' && new Date(tx.date).getMonth() === currentMonth)
+                    .reduce((sum, tx) => sum + parseFloat(tx.nominal), 0);
+                totalSpent += spent;
+                totalSisa += (budgets[cat] - spent);
+            });
+            
+            // Summary Card (selalu tampil)
+            const summaryCard = document.createElement('div');
+            summaryCard.className = 'budget-summary-card';
+            
+            const sisaFormat = formatCurrency(Math.max(0, totalSisa));
+            const totalBudgetFormat = formatCurrency(totalBudget);
+            const totalSpentFormat = formatCurrency(totalSpent);
+            const penggunaan = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
+            
+            summaryCard.innerHTML = `
+                <div class="budget-summary-title">Total Anggaran Bulan Ini</div>
+                <div class="budget-summary-amount">${totalBudgetFormat}</div>
+                <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                    <div>
+                        <div style="font-size: 0.7rem; opacity: 0.7;">Terpakai</div>
+                        <div style="font-weight: 600;">${totalSpentFormat}</div>
                     </div>
+                    <div>
+                        <div style="font-size: 0.7rem; opacity: 0.7;">Sisa</div>
+                        <div style="font-weight: 600;">${sisaFormat}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; opacity: 0.7;">Penggunaan</div>
+                        <div style="font-weight: 600;">${penggunaan}%</div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(summaryCard);
+            
+            // Jika tidak ada budget, tampilkan empty state
+            if (Object.keys(budgets).length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'budget-empty-state';
+                emptyState.innerHTML = `
+                    <i class='bx bx-target-lock'></i>
+                    <p>Belum ada anggaran</p>
+                    <p style="font-size:0.7rem; margin-top:0.5rem;">Atur anggaran untuk memantau pengeluaran</p>
                 `;
-                document.getElementById('sisa-anggaran').textContent = 'Sisa aman: Rp 0';
+                container.appendChild(emptyState);
                 return;
             }
             
-            let totalSisa = 0;
-
-            Object.keys(budgets).forEach(cat => {
+            // Buat grid untuk budget cards
+            const budgetGrid = document.createElement('div');
+            budgetGrid.className = 'budget-grid';
+            
+            // Urutkan budget berdasarkan persentase penggunaan (terbesar ke terkecil)
+            const sortedCategories = Object.keys(budgets).sort((a, b) => {
+                const spentA = transactions
+                    .filter(tx => tx.category === a && tx.type === 'expense' && new Date(tx.date).getMonth() === currentMonth)
+                    .reduce((sum, tx) => sum + parseFloat(tx.nominal), 0);
+                const spentB = transactions
+                    .filter(tx => tx.category === b && tx.type === 'expense' && new Date(tx.date).getMonth() === currentMonth)
+                    .reduce((sum, tx) => sum + parseFloat(tx.nominal), 0);
+                const percentA = budgets[a] > 0 ? (spentA / budgets[a]) : 0;
+                const percentB = budgets[b] > 0 ? (spentB / budgets[b]) : 0;
+                return percentB - percentA;
+            });
+            
+            sortedCategories.forEach(cat => {
                 const budgetAmt = budgets[cat];
                 const spent = transactions
                     .filter(tx => tx.category === cat && tx.type === 'expense' && new Date(tx.date).getMonth() === currentMonth)
                     .reduce((sum, tx) => sum + parseFloat(tx.nominal), 0);
-
+                
                 const percent = Math.min(Math.round((spent / budgetAmt) * 100), 100);
                 const sisa = budgetAmt - spent;
                 const isOver = spent > budgetAmt;
                 
-                // Tentukan warna berdasarkan status
-                let statusColor = 'var(--success)';
+                // Tentukan status dan warna
+                let statusClass = 'status-aman';
                 let statusText = 'Aman';
+                let progressClass = 'progress-normal';
+                
                 if (isOver) {
-                    statusColor = 'var(--danger)';
-                    statusText = 'Over';
-                } else if (percent > 80) {
-                    statusColor = 'var(--warning)';
-                    statusText = 'Hampir';
+                    statusClass = 'status-over';
+                    statusText = 'Over Budget';
+                    progressClass = 'progress-danger';
+                } else if (percent >= 90) {
+                    statusClass = 'status-over';
+                    statusText = 'Kritis';
+                    progressClass = 'progress-danger';
+                } else if (percent >= 75) {
+                    statusClass = 'status-hampir';
+                    statusText = 'Hampir Habis';
+                    progressClass = 'progress-warning';
+                } else if (percent >= 50) {
+                    statusClass = 'status-hampir';
+                    statusText = '50%+';
+                    progressClass = 'progress-warning';
                 }
-
-                // Card yang lebih minimalis
+                
+                // Pilih icon berdasarkan kategori
+                let icon = 'bx-category';
+                if (cat.toLowerCase().includes('makan')) icon = 'bx-restaurant';
+                else if (cat.toLowerCase().includes('transport')) icon = 'bx-car';
+                else if (cat.toLowerCase().includes('belanja')) icon = 'bx-shopping-bag';
+                else if (cat.toLowerCase().includes('hiburan')) icon = 'bx-movie';
+                else if (cat.toLowerCase().includes('tagihan')) icon = 'bx-receipt';
+                else if (cat.toLowerCase().includes('kesehatan')) icon = 'bx-health';
+                else if (cat.toLowerCase().includes('pendidikan')) icon = 'bx-book';
+                
                 const card = document.createElement('div');
-                card.className = 'data-card';
-                card.style.padding = '0.75rem';
-                card.style.position = 'relative';
+                card.className = 'budget-card-modern';
                 card.onclick = () => openBudgetModal(cat);
                 
                 card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-weight: 600; font-size: 0.9rem;">${cat}</span>
-                            <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 12px; background: ${statusColor}20; color: ${statusColor};">
-                                ${statusText}
-                            </span>
+                    <div class="budget-card-header">
+                        <div class="budget-category">
+                            <i class='bx ${icon}'></i>
+                            <span>${cat}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 0.8rem; font-weight: 600; color: ${isOver ? 'var(--danger)' : 'var(--text-main)'};">
-                                ${formatCurrency(spent)} / ${formatCurrency(budgetAmt)}
-                            </span>
-                            <i class='bx bx-trash' style="color: var(--text-muted); font-size: 1.1rem; padding: 0.25rem;" 
-                            onclick="event.stopPropagation(); deleteBudget('${cat}')"></i>
+                        <span class="budget-status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="budget-amount-row">
+                        <span class="budget-spent">${formatCurrency(spent)}</span>
+                        <span class="budget-total">dari <strong>${formatCurrency(budgetAmt)}</strong></span>
+                    </div>
+                    
+                    <div class="budget-progress">
+                        <div class="budget-progress-bar ${progressClass}" style="width: ${Math.min(percent, 100)}%"></div>
+                    </div>
+                    
+                    <div class="budget-footer">
+                        <div class="budget-remaining ${sisa >= 0 ? 'remaining-positive' : 'remaining-negative'}">
+                            <i class='bx ${sisa >= 0 ? 'bx-check-circle' : 'bx-error-circle'}'></i>
+                            <span>${sisa >= 0 ? 'Sisa ' + formatCurrency(sisa) : 'Over ' + formatCurrency(Math.abs(sisa))}</span>
                         </div>
+                        <button class="budget-delete-btn" onclick="event.stopPropagation(); deleteBudget('${cat}')">
+                            <i class='bx bx-trash'></i>
+                        </button>
                     </div>
-                    <div class="progress-container" style="height: 4px; margin-top: 0.25rem;">
-                        <div class="progress-bar ${isOver ? 'danger' : (percent > 80 ? 'warning' : '')}" 
-                            style="width: ${Math.min(percent, 100)}%; height: 4px;"></div>
-                    </div>
-                    ${isOver ? `
-                        <p style="font-size: 0.65rem; margin-top: 0.35rem; color: var(--danger);">
-                            ⚠️ Over ${formatCurrency(spent - budgetAmt)}
-                        </p>
-                    ` : `
-                        <p style="font-size: 0.65rem; margin-top: 0.35rem; color: var(--text-muted);">
-                            ✅ Sisa ${formatCurrency(sisa)}
-                        </p>
-                    `}
                 `;
-                container.appendChild(card);
-                totalSisa += sisa;
+                
+                budgetGrid.appendChild(card);
             });
-
-            document.getElementById('sisa-anggaran').innerHTML = `Sisa anggaran: <strong>${formatCurrency(Math.max(0, totalSisa))}</strong>`;
+            
+            container.appendChild(budgetGrid);
         }
 
         // Fungsi untuk menghapus budget
@@ -2200,11 +2788,229 @@
             }
         }
 
-        // ==================== FUNGSI RESET TOTAL ====================
-        function forceResetAllData() {
-            if (!confirm('⚠️ PERINGATAN!\n\nIni akan MENGHAPUS SEMUA:\n• Transaksi\n• Aset (kecuali default)\n• Anggaran\n• Kategori (reset ke default)\n\nData di cloud juga akan dihapus permanen.\nLanjutkan?')) {
+        // ==================== FUNGSI MATA UANG KUSTOM ====================
+
+        // Fungsi untuk membuka modal currency dan memuat data
+        function openCurrencySettings() {
+            document.getElementById('main-currency').value = mainCurrency;
+            document.getElementById('number-format').value = numberFormat;
+            renderCustomCurrenciesList();
+            document.getElementById('currency-modal').classList.add('active');
+        }
+
+        // Fungsi untuk merender daftar mata uang kustom
+        function renderCustomCurrenciesList() {
+            const container = document.getElementById('custom-currencies-list');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            // Tambahkan opsi kustom ke select main currency
+            const mainCurrencySelect = document.getElementById('main-currency');
+            // Hapus opsi kustom lama (yang bukan default)
+            for (let i = mainCurrencySelect.options.length - 1; i >= 0; i--) {
+                const option = mainCurrencySelect.options[i];
+                if (option.value !== 'IDR' && option.value !== 'USD' && 
+                    option.value !== 'EUR' && option.value !== 'SGD' && 
+                    option.value !== 'MYR') {
+                    mainCurrencySelect.remove(i);
+                }
+            }
+            
+            if (customCurrencies.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 1rem;">
+                        <i class='bx bx-money' style="font-size: 2rem;"></i>
+                        <p style="font-size: 0.8rem;">Belum ada mata uang kustom</p>
+                    </div>
+                `;
                 return;
             }
+            
+            customCurrencies.forEach((currency, index) => {
+                // Tambahkan ke select main currency
+                const option = document.createElement('option');
+                option.value = currency.code;
+                option.textContent = `${currency.flag || '🏳️'} ${currency.name} (${currency.code}) - ${currency.symbol}`;
+                mainCurrencySelect.appendChild(option);
+                
+                // Tampilkan di daftar
+                const item = document.createElement('div');
+                item.className = 'data-card flex justify-between items-center';
+                item.style.marginBottom = '0.5rem';
+                item.style.padding = '0.75rem';
+                
+                item.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="font-size: 1.5rem;">${currency.flag || '🏳️'}</span>
+                        <div>
+                            <div style="font-weight: 600;">${currency.name} (${currency.code})</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Simbol: ${currency.symbol}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <i class='bx bx-pencil' style="color: var(--primary); font-size: 1.2rem; cursor: pointer;" 
+                        onclick="editCustomCurrency('${currency.code}')"></i>
+                        <i class='bx bx-trash' style="color: var(--danger); font-size: 1.2rem; cursor: pointer;" 
+                        onclick="deleteCustomCurrency('${currency.code}')"></i>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        // Fungsi untuk menambah mata uang kustom
+        function addCustomCurrency() {
+            const code = document.getElementById('new-currency-code').value.trim().toUpperCase();
+            const symbol = document.getElementById('new-currency-symbol').value.trim();
+            const name = document.getElementById('new-currency-name').value.trim();
+            
+            if (!code || !symbol || !name) {
+                alert('Semua field harus diisi!');
+                return;
+            }
+            
+            if (code.length !== 3) {
+                alert('Kode mata uang harus 3 huruf (contoh: GBP)');
+                return;
+            }
+            
+            // Cek duplikasi
+            if (customCurrencies.some(c => c.code === code)) {
+                alert(`Mata uang dengan kode ${code} sudah ada!`);
+                return;
+            }
+            
+            // Tambah ke array
+            customCurrencies.push({
+                code: code,
+                symbol: symbol,
+                name: name,
+                flag: '🏳️' // Flag default
+            });
+            
+            // Bersihkan input
+            document.getElementById('new-currency-code').value = '';
+            document.getElementById('new-currency-symbol').value = '';
+            document.getElementById('new-currency-name').value = '';
+            
+            // Simpan dan render ulang
+            saveData();
+            renderCustomCurrenciesList();
+            
+            // Sync ke server
+            syncWithGAS(true, true).catch(e => console.log('Sync failed:', e));
+            
+            showToast(`Mata uang ${code} berhasil ditambahkan`, 'success');
+        }
+
+        // Fungsi untuk mengedit mata uang kustom
+        function editCustomCurrency(code) {
+            const currency = customCurrencies.find(c => c.code === code);
+            if (!currency) return;
+            
+            const newSymbol = prompt('Masukkan simbol baru:', currency.symbol);
+            if (newSymbol === null) return;
+            
+            const newName = prompt('Masukkan nama baru:', currency.name);
+            if (newName === null) return;
+            
+            currency.symbol = newSymbol.trim();
+            currency.name = newName.trim();
+            
+            saveData();
+            renderCustomCurrenciesList();
+            
+            syncWithGAS(true, true).catch(e => console.log('Sync failed:', e));
+            showToast(`Mata uang ${code} diperbarui`, 'success');
+        }
+
+        // Fungsi untuk menghapus mata uang kustom
+        function deleteCustomCurrency(code) {
+            if (!confirm(`Hapus mata uang ${code}?`)) return;
+            
+            // Cek apakah mata uang ini sedang digunakan
+            if (mainCurrency === code) {
+                alert('Tidak bisa menghapus mata uang yang sedang digunakan sebagai mata uang utama. Ganti mata uang utama terlebih dahulu.');
+                return;
+            }
+            
+            customCurrencies = customCurrencies.filter(c => c.code !== code);
+            
+            saveData();
+            renderCustomCurrenciesList();
+            
+            syncWithGAS(true, true).catch(e => console.log('Sync failed:', e));
+            showToast(`Mata uang ${code} dihapus`, 'success');
+        }
+
+        // Perbaiki fungsi changeMainCurrency untuk sync ke server
+        function changeMainCurrency(currency) {
+            mainCurrency = currency;
+            updateCurrencyDisplay();
+            saveData();
+            renderCurrentView();
+            refreshStatistics();
+            renderAssets();
+            renderBudgets();
+            
+            // Sync ke server
+            syncWithGAS(true, true).catch(e => console.log('Sync failed:', e));
+        }
+
+        // Perbaiki fungsi changeNumberFormat untuk sync ke server
+        function changeNumberFormat(format) {
+            numberFormat = format;
+            saveData();
+            renderCurrentView();
+            refreshStatistics();
+            renderAssets();
+            renderBudgets();
+            
+            // Sync ke server
+            syncWithGAS(true, true).catch(e => console.log('Sync failed:', e));
+        }
+
+        // Perbaiki fungsi formatCurrency untuk mendukung mata uang kustom
+        function formatCurrency(amount, currency = mainCurrency) {
+            // Cari di custom currencies dulu
+            const customCurrency = customCurrencies.find(c => c.code === currency);
+            
+            let symbol = 'Rp ';
+            if (customCurrency) {
+                symbol = customCurrency.symbol + ' ';
+            } else {
+                symbol = currency === 'IDR' ? 'Rp ' :
+                        currency === 'USD' ? '$ ' :
+                        currency === 'EUR' ? '€ ' : 'Rp ';
+            }
+            
+            if (numberFormat === 'id-ID') {
+                return symbol + amount.toLocaleString('id-ID');
+            } else if (numberFormat === 'en-US') {
+                return symbol + amount.toLocaleString('en-US');
+            } else {
+                return amount.toLocaleString('de-DE') + ' ' + symbol;
+            }
+        }
+
+        // ==================== FUNGSI RESET TOTAL ====================
+        function forceResetAllData() {
+            if (!confirm('⚠️ PERINGATAN!\n\nIni akan MENGHAPUS SEMUA:\n• Transaksi\n• Aset (kecuali default)\n• Anggaran\n• Kategori (reset ke default)\n• Mata uang kustom\n\nData di cloud juga akan dihapus permanen.\nLanjutkan?')) {
+                return;
+            }
+            
+            // Simpan ID yang akan dihapus
+            const deletedAssetIds = assets
+                .filter(a => a.id !== 'ast1' && a.id !== 'ast2')
+                .map(a => a.id);
+            
+            const deletedTransactionIds = transactions
+                .filter(tx => tx.id > 1000)
+                .map(tx => tx.id);
+            
+            const deletedBudgetKeys = Object.keys(budgets);
             
             // Reset ke data default
             transactions = [];
@@ -2213,6 +3019,7 @@
                 {id: 'ast2', name: 'Bank BCA', icon: 'bxs-bank', balance: 0}
             ];
             budgets = {};
+            customCurrencies = [];
             categories = {
                 income: ["Gaji", "Bonus", "Investasi", "Lainnya"],
                 expense: ["Makan", "Transportasi", "Belanja", "Hiburan", "Tagihan", "Lainnya"],
@@ -2221,22 +3028,25 @@
             mainCurrency = 'IDR';
             numberFormat = 'id-ID';
             
-            // Hapus semua localStorage
-            localStorage.clear();
+            // Simpan ke localStorage
+            saveData();
             
-            // Reset lastSyncData
+            // Update lastSyncData dengan ID yang akan dihapus
             lastSyncData = {
-                transactions: [],
+                transactions: [...transactions],
                 assets: [...assets],
-                budgets: {},
+                budgets: { ...budgets },
                 categories: JSON.parse(JSON.stringify(categories)),
-                deletedIds: [],
-                deletedBudgetKeys: []
+                customCurrencies: [...customCurrencies],
+                settings: { currency: mainCurrency, numberFormat: numberFormat },
+                deletedIds: deletedTransactionIds,
+                deletedAssetIds: deletedAssetIds,
+                deletedBudgetKeys: deletedBudgetKeys
             };
             
-            // Simpan data default ke localStorage
-            saveData();
             localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
+            lastSyncTime = new Date().toISOString();
+            localStorage.setItem('profinance_last_sync', lastSyncTime);
             
             // Render ulang
             updateMonthDisplay();
@@ -2248,14 +3058,19 @@
             
             showToast('Data lokal telah direset ke default', 'success');
             
-            // Sync ke cloud (akan mengirim data default)
-            setTimeout(() => {
-                syncWithGAS().then(() => {
-                    showToast('Database cloud juga telah direset', 'success');
-                }).catch(err => {
+            // Sync ke cloud (PASTIKAN MENGGUNAKAN AWAIT)
+            setTimeout(async () => {
+                try {
+                    const result = await syncWithGAS(true, false);
+                    if (result && result.syncedCount > 0) {
+                        showToast(`Database cloud telah direset (${result.syncedCount} perubahan)`, 'success');
+                    } else {
+                        showToast('Database cloud telah direset', 'success');
+                    }
+                } catch (err) {
                     console.error('Sync reset gagal:', err);
                     showToast('Reset lokal berhasil, cloud akan direset saat online', 'warning');
-                });
+                }
             }, 500);
         }
 
@@ -2267,36 +3082,47 @@
                 return;
             }
 
+            // Simpan ID transaksi yang akan dihapus
+            const deletedTransactionIds = transactions
+                .filter(tx => tx.id > 1000)
+                .map(tx => tx.id);
+
             // Kosongkan transaksi di memory
             transactions = [];
 
             // Simpan perubahan lokal
             localStorage.setItem('profinance_transactions', JSON.stringify(transactions));
 
-            // Update lastSyncData agar sync tahu semua ID lama dianggap dihapus
-            if (lastSyncData && lastSyncData.transactions) {
-                lastSyncData.deletedIds = [
-                    ...(lastSyncData.deletedIds || []),
-                    ...lastSyncData.transactions.map(tx => tx.id).filter(id => id > 1000) // hindari ID dummy/default
-                ];
-                localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
-            }
+            // Update lastSyncData
+            lastSyncData.transactions = [];
+            lastSyncData.deletedIds = [
+                ...(lastSyncData.deletedIds || []),
+                ...deletedTransactionIds
+            ];
+            localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
 
             // Render ulang
             renderCurrentView();
-            renderBudgets();     // karena spending berubah
-            renderAssets();      // karena balance mungkin berubah
+            renderBudgets();
+            renderAssets();
             refreshStatistics();
 
             showToast('Semua transaksi lokal telah dihapus', 'success');
 
-            // Sync ke cloud (akan menghapus semua transaksi di spreadsheet)
-            syncWithGAS().then(() => {
-                showToast('Semua transaksi di cloud juga telah dihapus', 'success');
-            }).catch(err => {
-                console.error('Sync hapus transaksi gagal:', err);
-                showToast('Transaksi lokal dihapus, cloud akan dibersihkan saat online', 'warning');
-            });
+            // Sync ke cloud
+            setTimeout(async () => {
+                try {
+                    const result = await syncWithGAS(true, false);
+                    if (result && result.syncedCount > 0) {
+                        showToast(`Semua transaksi di cloud juga telah dihapus (${result.syncedCount} perubahan)`, 'success');
+                    } else {
+                        showToast('Semua transaksi di cloud juga telah dihapus', 'success');
+                    }
+                } catch (err) {
+                    console.error('Sync hapus transaksi gagal:', err);
+                    showToast('Transaksi lokal dihapus, cloud akan dibersihkan saat online', 'warning');
+                }
+            }, 500);
         }
 
         // ==================== INIT ====================
@@ -2323,12 +3149,22 @@
                 await loadDataFromGAS();
             }
 
-            setInterval(() => {
+            // ==================== AUTO SYNC SETIAP 1 MENIT ====================
+            let autoSyncInterval = setInterval(async () => {
                 if (navigator.onLine && !syncInProgress) {
-                    syncWithGAS().catch(e => console.log('Auto sync failed:', e));
+                    try {
+                        await syncWithGAS(false, true); // silent = true
+                    } catch (e) {
+                        console.log('Auto sync failed:', e);
+                    }
                 }
-            }, 120000);
-        });
+            }, 60000); // 60000 ms = 1 menit
+
+            // Cleanup interval saat page unload (opsional)
+            window.addEventListener('beforeunload', () => {
+                clearInterval(autoSyncInterval);
+            });
+        }); // <-- HANYA SATU KURUNG TUTUP DI SINI
 
         async function shouldSyncFromServer() {
             if (transactions.length === 0 && assets.length <= 2) {
@@ -2353,6 +3189,34 @@
         window.refreshFromServer = async function() {
             await loadDataFromGAS();
         };
+
+        // ==================== FUNGSI DEBUG ====================
+function debugSyncStatus() {
+    console.log('=== SYNC STATUS ===');
+    console.log('syncInProgress:', syncInProgress);
+    console.log('lastSyncTime:', lastSyncTime);
+    console.log('lastSyncData:', lastSyncData);
+    console.log('transactions:', transactions.length);
+    console.log('assets:', assets.length);
+    console.log('budgets:', Object.keys(budgets).length);
+    console.log('customCurrencies:', customCurrencies.length);
+    console.log('categories:', categories);
+    
+    // Hitung perubahan yang akan dikirim
+    const changes = {
+        newTransactions: getNewTransactions().length,
+        updatedTransactions: getUpdatedTransactions().length,
+        deletedIds: getDeletedIds().length,
+        newAssets: getNewAssets().length,
+        updatedAssets: getUpdatedAssets().length,
+        deletedAssetIds: getDeletedAssetIds().length,
+        newBudgets: Object.keys(getNewBudgets()).length,
+        deletedBudgetKeys: getDeletedBudgetKeys().length
+    };
+    console.log('Pending changes:', changes);
+    
+    showToast('Cek console untuk detail sync', 'success');
+}
     </script>
 </body>
 </html>
