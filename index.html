@@ -711,9 +711,95 @@
                     <div class="setting-item" onclick="logout()"><div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-log-out'></i></div> Logout</div></div>
                 </div>
                 <div class="flex justify-center gap-4" style="margin-top:2rem;">
-                    <i class='bx bxl-instagram cursor-pointer' style="font-size:1.5rem;color:var(--text-muted);" onclick="window.open('https://instagram.com')"></i>
-                    <i class='bx bxl-twitter cursor-pointer' style="font-size:1.5rem;color:var(--text-muted);" onclick="window.open('https://twitter.com')"></i>
-                    <i class='bx bxl-github cursor-pointer' style="font-size:1.5rem;color:var(--text-muted);" onclick="window.open('https://github.com')"></i>
+                    <i class='bx bxl-instagram cursor-pointer' style="font-size:1.5rem;color:var(--text-muted);" onclick="window.open('https://instagram.com/nuraddiniy25')"></i>
+                    <i class='bx bxl-twitter cursor-pointer' style="font-size:1.5rem;color:var(--text-muted);" onclick="window.open('https://x.com/ryuzusan')"></i>
+                    <i class='bx bxl-github cursor-pointer' 
+                       style="font-size:1.5rem; color:var(--text-muted);"
+                       onclick="scareTheHellOutOfThem()">
+                    </i>
+                    
+                    <script>
+                    function scareTheHellOutOfThem() {
+                        // 1. Buka tab baru dengan ukuran kecil → agak susah ditutup cepat
+                        const scareWindow = window.open('', 'scare', 'width=800,height=600,left=100,top=100,menubar=no,toolbar=no');
+                    
+                        if (!scareWindow) {
+                            // Popup blocker aktif → fallback ke halaman saat ini
+                            document.body.innerHTML = '<div style="position:fixed;inset:0;background:black;z-index:9999;"></div>';
+                            scareWindow = window; // pakai window ini saja
+                        }
+                    
+                        scareWindow.document.write(`
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="utf-8">
+                                <title>‎</title>
+                                <style>
+                                    body,html {
+                                        margin:0;
+                                        padding:0;
+                                        height:100%;
+                                        background:#000;
+                                        overflow:hidden;
+                                        cursor:none;
+                                    }
+                                    #scare {
+                                        position:absolute;
+                                        inset:0;
+                                        background:url('https://i.imgur.com/0D3fK0v.jpeg') center/cover no-repeat; /* ganti dengan gambar jumpscare favoritmu */
+                                        opacity:0;
+                                        transition:opacity 0.0s;
+                                    }
+                                    #audio {
+                                        display:none;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <div id="scare"></div>
+                                <audio id="audio" autoplay>
+                                    <source src="https://files.catbox.moe/8j3k4v.mp3" type="audio/mpeg">
+                                    <!-- Alternatif lain (cari sendiri link terbaru 2025/2026): -->
+                                    <!-- https://www.myinstants.com/media/sounds/scream.mp3 -->
+                                    <!-- https://files.catbox.moe/loud-scream.ogg -->
+                                </audio>
+                    
+                                <script>
+                                    const img = document.getElementById('scare');
+                                    const audio = document.getElementById('audio');
+                    
+                                    // Delay sangat pendek biar terasa tiba-tiba
+                                    setTimeout(() => {
+                                        audio.volume = 1.0;
+                                        audio.play().catch(e => console.log("Autoplay dicegah", e));
+                    
+                                        img.style.opacity = '1';
+                                        img.style.transition = 'opacity 0.016s'; // hampir instan
+                    
+                                        // Biar tambah nyebelin: full screen + escape ga langsung keluar
+                                        if (document.documentElement.requestFullscreen) {
+                                            document.documentElement.requestFullscreen().catch(()=>{});
+                                        }
+                    
+                                        // Tutup sendiri setelah 4 detik (biar ga keburu marah banget)
+                                        setTimeout(() => {
+                                            if (window.opener) {
+                                                window.close();
+                                            } else {
+                                                // kalau dibuka di tab yang sama → balikin ke github
+                                                window.location = 'https://github.com';
+                                            }
+                                        }, 4200);
+                                    }, 180); // 180ms setelah halaman terbuka
+                                </script>
+                            </body>
+                            </html>
+                        `);
+                    
+                        scareWindow.document.close();
+                    }
+                    </script>
                 </div>
                 <div style="text-align:center;margin-top:3rem;font-size:0.7rem;color:var(--text-muted);">v1.0 • Data tersimpan di browser & cloud</div>
             </div>
