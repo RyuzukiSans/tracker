@@ -457,10 +457,8 @@
                     <div class="setting-item" onclick="openCurrencySettings()"><div class="setting-left"><div class="setting-icon"><i class='bx bx-money'></i></div> Pengaturan Mata Uang</div><span style="font-size:0.8rem;font-weight:600;" id="currency-display">IDR</span></div>
                     <div class="setting-item" onclick="exportData()"><div class="setting-left"><div class="setting-icon icon-inc"><i class='bx bx-spreadsheet'></i></div> Ekstrak ke Excel</div><i class='bx bx-download'></i></div>
                     <div class="setting-item" onclick="syncWithGAS()"><div class="setting-left"><div class="setting-icon"><i class='bx bx-sync'></i></div> Sinkronisasi Manual</div><i class='bx bx-refresh'></i></div>
-                    <div class="setting-item" onclick="forceResetAllData()" style="color: var(--danger);">
-                    <div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-trash'></i></div>⚠️ Force Reset Semua Data</div><i class='bx bx-error'></i></div>
-                    <div class="setting-item" onclick="resetToEmptyData()"><div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-reset'></i></div>Reset Semua Data</div><i class='bx bx-refresh'></i></div>
-                    <div class="setting-item" onclick="clearAllTransactions()"><div class="setting-left"><div class="setting-icon"><i class='bx bx-notepad'></i></div>Hapus Semua Transaksi</div><i class='bx bx-trash'></i></div>
+                    <div class="setting-item" onclick="forceResetAllData()" style="color: var(--danger);"><div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-trash'></i></div>Reset Semua Data</div><i class='bx bx-error'></i></div>
+                    <div class="setting-item" onclick="clearAllTransactions()" style="color: var(--danger);"><div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-notepad'></i></div>Hapus Semua Transaksi</div><i class='bx bx-trash'></i></div>
                     <div class="setting-item" onclick="clearLocalStorage()">
                     <div class="setting-left"><div class="setting-icon"><i class='bx bx-data'></i></div>Bersihkan LocalStorage</div><i class='bx bx-refresh'></i></div>
                     <div class="setting-item" onclick="logout()"><div class="setting-left"><div class="setting-icon icon-exp"><i class='bx bx-log-out'></i></div> Logout</div></div>
@@ -674,7 +672,7 @@
 
     <script>
         // ==================== KONFIGURASI GAS ====================
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz3cRekqrm31hzcuYUaipQIMAg-erWKIFhe53WiF1IjOR43NP1tsWOHlHfnUAo0lXhn6Q/exec"; // URL kamu
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwl20wSMx-VNBFKQr1IeUBVb9rRPgP0FN53N3BOdFo9ySthL5CNK-8gGXrQDaRIACaA7g/exec"; // URL kamu
 
         // ==================== GLOBAL STATE ====================
         let transactions = [];
@@ -830,11 +828,13 @@
                     
                     lastSyncTime = new Date().toISOString();
                     localStorage.setItem('profinance_last_sync', lastSyncTime);
-                    lastSyncData = { 
-                        transactions: [...transactions], 
-                        assets: [...assets], 
+                    lastSyncData = {
+                        transactions: [...transactions],
+                        assets: [...assets],
                         budgets: {...budgets},
-                        deletedIds: []
+                        categories: JSON.parse(JSON.stringify(categories)), // PENTING: simpan kategori
+                        deletedIds: [],
+                        deletedBudgetKeys: []
                     };
                     localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
                     
@@ -909,40 +909,41 @@
             updateSyncStatus('Menyimpan...', 'warning');
             
             try {
-                const newTransactions = getNewTransactions();
-                const updatedTransactions = getUpdatedTransactions();
-                const deletedIds = getDeletedIds();
-                const newAssets = getNewAssets();
-                const updatedAssets = getUpdatedAssets();
-                const deletedAssetIds = getDeletedAssetIds();
-                const newBudgets = getNewBudgets();
-                const deletedBudgetKeys = getDeletedBudgetKeys(); // TAMBAHKAN INI
+                // Kumpulkan semua perubahan
+                const changes = {
+                    newTransactions: getNewTransactions(),
+                    updatedTransactions: getUpdatedTransactions(),
+                    deletedIds: getDeletedIds(),
+                    newAssets: getNewAssets(),
+                    updatedAssets: getUpdatedAssets(),
+                    deletedAssetIds: getDeletedAssetIds(),
+                    newBudgets: getNewBudgets(),
+                    deletedBudgetKeys: getDeletedBudgetKeys(),
+                    categories: categories // Kirim kategori setiap kali (full sync)
+                };
                 
-                if (newTransactions.length === 0 && updatedTransactions.length === 0 && 
-                    deletedIds.length === 0 && newAssets.length === 0 && 
-                    updatedAssets.length === 0 && deletedAssetIds.length === 0 && 
-                    Object.keys(newBudgets).length === 0 && deletedBudgetKeys.length === 0) { // UPDATE INI
+                // Cek apakah ada perubahan (kecuali kategori yang selalu dikirim)
+                const hasChanges = 
+                    changes.newTransactions.length > 0 ||
+                    changes.updatedTransactions.length > 0 ||
+                    changes.deletedIds.length > 0 ||
+                    changes.newAssets.length > 0 ||
+                    changes.updatedAssets.length > 0 ||
+                    changes.deletedAssetIds.length > 0 ||
+                    Object.keys(changes.newBudgets).length > 0 ||
+                    changes.deletedBudgetKeys.length > 0 ||
+                    JSON.stringify(lastSyncData.categories) !== JSON.stringify(categories); // Cek perubahan kategori
+                
+                if (!hasChanges) {
                     updateSyncStatus('Tersimpan', 'success');
-                    showToast('Tidak ada perubahan untuk disinkronkan', 'success');
                     syncInProgress = false;
                     return;
                 }
                 
                 const payload = {
                     action: 'syncAllData',
-                    newTransactions: newTransactions,
-                    updatedTransactions: updatedTransactions,
-                    deletedIds: deletedIds,
-                    newAssets: newAssets,
-                    updatedAssets: updatedAssets,
-                    deletedAssetIds: deletedAssetIds,
-                    newBudgets: newBudgets,
-                    deletedBudgetKeys: deletedBudgetKeys, // TAMBAHKAN INI
-                    fullData: {
-                        transactions: transactions,
-                        assets: assets,
-                        budgets: budgets
-                    }
+                    ...changes,
+                    timestamp: new Date().toISOString()
                 };
                 
                 const result = await fetchFromGAS(payload);
@@ -951,13 +952,16 @@
                     updateSyncStatus('Tersimpan cloud', 'success');
                     showToast(`${result.syncedCount || 0} perubahan tersimpan`, 'success');
                     
+                    // Update lastSyncData dengan data TERBARU
                     lastSyncData = {
                         transactions: JSON.parse(JSON.stringify(transactions)),
                         assets: JSON.parse(JSON.stringify(assets)),
-                        budgets: {...budgets},
+                        budgets: { ...budgets },
+                        categories: JSON.parse(JSON.stringify(categories)),
                         deletedIds: [],
-                        deletedBudgetKeys: [] // TAMBAHKAN INI
+                        deletedBudgetKeys: []
                     };
+                    
                     localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
                     lastSyncTime = new Date().toISOString();
                     localStorage.setItem('profinance_last_sync', lastSyncTime);
@@ -967,7 +971,7 @@
             } catch (error) {
                 console.error('Sync error:', error);
                 updateSyncStatus('Offline mode', 'danger');
-                showToast('Gagal sinkronisasi. Cek koneksi internet.', 'danger');
+                showToast('Gagal sinkronisasi. Cek koneksi.', 'danger');
             } finally {
                 syncInProgress = false;
             }
@@ -1056,25 +1060,30 @@
 
         // Fungsi untuk mendapatkan budget baru atau berubah
         function getNewBudgets() {
-            if (!lastSyncData || !lastSyncData.budgets) return budgets;
+            if (!lastSyncData || !lastSyncData.budgets) {
+                // Pertama kali sync → kirim semua
+                return { ...budgets };
+            }
             
             const newBudgets = {};
             Object.keys(budgets).forEach(cat => {
-                // Budget baru atau berubah
-                if (lastSyncData.budgets[cat] !== budgets[cat]) {
-                    newBudgets[cat] = budgets[cat];
+                const currentValue = budgets[cat];
+                const prevValue = lastSyncData.budgets[cat];
+                
+                // Baru atau nilainya berubah
+                if (prevValue === undefined || prevValue !== currentValue) {
+                    newBudgets[cat] = currentValue;
                 }
             });
             return newBudgets;
         }
 
-        // TAMBAHKAN fungsi baru untuk mendeteksi budget yang dihapus
+        // Fungsi untuk mendapatkan budget yang dihapus
         function getDeletedBudgetKeys() {
             if (!lastSyncData || !lastSyncData.budgets) return [];
             
             const currentKeys = new Set(Object.keys(budgets));
-            return Object.keys(lastSyncData.budgets)
-                .filter(key => !currentKeys.has(key)); // Budget yang ada di lastSync tapi tidak ada di current
+            return Object.keys(lastSyncData.budgets).filter(key => !currentKeys.has(key));
         }
 
         // ==================== SETUP SPREADSHEET ====================
@@ -2193,55 +2202,101 @@
 
         // ==================== FUNGSI RESET TOTAL ====================
         function forceResetAllData() {
-            if (!confirm('⚠️ PERINGATAN!\n\nIni akan menghapus SEMUA data:\n- Semua transaksi\n- Semua aset\n- Semua anggaran\n\nData di spreadsheet juga akan dihapus. Lanjutkan?')) {
+            if (!confirm('⚠️ PERINGATAN!\n\nIni akan MENGHAPUS SEMUA:\n• Transaksi\n• Aset (kecuali default)\n• Anggaran\n• Kategori (reset ke default)\n\nData di cloud juga akan dihapus permanen.\nLanjutkan?')) {
                 return;
             }
             
+            // Reset ke data default
             transactions = [];
-            assets = [];
+            assets = [
+                {id: 'ast1', name: 'Cash', icon: 'bx-wallet', balance: 0},
+                {id: 'ast2', name: 'Bank BCA', icon: 'bxs-bank', balance: 0}
+            ];
             budgets = {};
+            categories = {
+                income: ["Gaji", "Bonus", "Investasi", "Lainnya"],
+                expense: ["Makan", "Transportasi", "Belanja", "Hiburan", "Tagihan", "Lainnya"],
+                transfer: ["Transfer"]
+            };
+            mainCurrency = 'IDR';
+            numberFormat = 'id-ID';
             
-            categories = { 
-                income: ["Gaji", "Bonus", "Lainnya"], 
-                expense: ["Makan", "Transportasi", "Lainnya"], 
-                transfer: ["Transfer"] 
+            // Hapus semua localStorage
+            localStorage.clear();
+            
+            // Reset lastSyncData
+            lastSyncData = {
+                transactions: [],
+                assets: [...assets],
+                budgets: {},
+                categories: JSON.parse(JSON.stringify(categories)),
+                deletedIds: [],
+                deletedBudgetKeys: []
             };
             
-            localStorage.removeItem('profinance_transactions');
-            localStorage.removeItem('profinance_categories');
-            localStorage.removeItem('profinance_assets');
-            localStorage.removeItem('profinance_budgets');
-            localStorage.removeItem('profinance_settings');
-            localStorage.removeItem('profinance_last_sync');
-            localStorage.removeItem('profinance_last_sync_data');
+            // Simpan data default ke localStorage
+            saveData();
+            localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
             
-            lastSyncData = { transactions: [], assets: [], budgets: {}, deletedIds: [], deletedBudgetKeys: [] }; // UPDATE
-            
+            // Render ulang
+            updateMonthDisplay();
             renderCurrentView();
             renderAssets();
             renderBudgets();
             refreshStatistics();
+            updateCurrencyDisplay();
             
-            showToast('Semua data telah direset', 'success');
+            showToast('Data lokal telah direset ke default', 'success');
             
+            // Sync ke cloud (akan mengirim data default)
             setTimeout(() => {
-                syncWithGAS().catch(e => console.log('Sync after reset:', e));
+                syncWithGAS().then(() => {
+                    showToast('Database cloud juga telah direset', 'success');
+                }).catch(err => {
+                    console.error('Sync reset gagal:', err);
+                    showToast('Reset lokal berhasil, cloud akan direset saat online', 'warning');
+                });
             }, 500);
         }
 
-        // Tambahkan fungsi untuk membersihkan data transaksi saja
+        // ───────────────────────────────────────────────
+        // HAPUS SEMUA TRANSAKSI SAJA (local + cloud)
+        // ───────────────────────────────────────────────
         function clearAllTransactions() {
-            if (!confirm('Hapus SEMUA transaksi? Data aset dan anggaran tetap dipertahankan.')) return;
-            
+            if (!confirm('Hapus SEMUA transaksi?\nAset, anggaran, dan kategori tetap dipertahankan.\nData di cloud juga akan dihapus.')) {
+                return;
+            }
+
+            // Kosongkan transaksi di memory
             transactions = [];
-            saveData();
+
+            // Simpan perubahan lokal
+            localStorage.setItem('profinance_transactions', JSON.stringify(transactions));
+
+            // Update lastSyncData agar sync tahu semua ID lama dianggap dihapus
+            if (lastSyncData && lastSyncData.transactions) {
+                lastSyncData.deletedIds = [
+                    ...(lastSyncData.deletedIds || []),
+                    ...lastSyncData.transactions.map(tx => tx.id).filter(id => id > 1000) // hindari ID dummy/default
+                ];
+                localStorage.setItem('profinance_last_sync_data', JSON.stringify(lastSyncData));
+            }
+
+            // Render ulang
             renderCurrentView();
+            renderBudgets();     // karena spending berubah
+            renderAssets();      // karena balance mungkin berubah
             refreshStatistics();
-            renderBudgets(); // Refresh budget karena spending berubah
-            renderAssets(); // Refresh aset karena balance mungkin berubah
-            
-            syncWithGAS().catch(e => console.log('Sync failed:', e));
-            showToast('Semua transaksi telah dihapus', 'success');
+
+            showToast('Semua transaksi lokal telah dihapus', 'success');
+
+            // Sync ke cloud (akan menghapus semua transaksi di spreadsheet)
+            syncWithGAS().then(() => {
+                showToast('Semua transaksi di cloud juga telah dihapus', 'success');
+            }).catch(err => {
+                console.error('Sync hapus transaksi gagal:', err);
+                showToast('Transaksi lokal dihapus, cloud akan dibersihkan saat online', 'warning');
+            });
         }
 
         // ==================== INIT ====================
